@@ -23,9 +23,9 @@ type Binomialer interface {
 }
 
 // Tresholder is typically an unsigned number
-// The Cmp() compares itself to Tresholder and returns -1 iff this < Tresholder
+// The Cmp() compares itself to arg and returns -1 iff reciever < arg
 // Cmp() may return -2 if the comparation failed
-// The Sub() makes this smaller by argument
+// The Sub() makes reciever smaller by argument
 type Tresholder interface {
 	Cmp(Tresholder) int
 	Sub(Tresholder)
@@ -44,16 +44,17 @@ func Unrank(s Set, b Binomialer, tr Tresholder, z1 uint, z0 uint) error {
 		bi := b.Binomial(z0, z1 + 1)
 		cmp := tr.Cmp(bi)
 
-		if cmp == -2 {
-			return ErrCmp
-		} else if cmp < 0 {
+		switch cmp {
+		case -1:
 			s.SetBit(n, 0)
 
 			if z0 == 0 {
 				return ErrNul
 			}
 			z0--
-		} else {
+		case 0:
+			fallthrough
+		case 1:
 			s.SetBit(n, 1)
 			tr.Sub(bi)
 
@@ -61,6 +62,8 @@ func Unrank(s Set, b Binomialer, tr Tresholder, z1 uint, z0 uint) error {
 				return ErrOne
 			}
 			z1--
+		default:
+			return ErrCmp
 		}
 
 		n++;
