@@ -38,15 +38,23 @@ type Set interface {
 
 // Unrank implements the combination unrank algorithm
 func Unrank(s Set, b Binomialer, tr Tresholder, z1 uint, z0 uint) error {
-	var n uint
+	var n, b, swap uint
 
 	for z0 + z1 > 0 {
+		// avoid substracting
+		if z1 > z0 {
+			b = 1-b
+			swap = z0
+			z0 = z1
+			z1 = swap
+		}
+
 		bi := b.Binomial(z0, z1 + 1)
 		cmp := tr.Cmp(bi)
 
 		switch cmp {
 		case -1:
-			s.SetBit(n, 0)
+			s.SetBit(n, b)
 
 			if z0 == 0 {
 				return ErrNul
@@ -55,7 +63,7 @@ func Unrank(s Set, b Binomialer, tr Tresholder, z1 uint, z0 uint) error {
 		case 0:
 			fallthrough
 		case 1:
-			s.SetBit(n, 1)
+			s.SetBit(n, 1-b)
 			tr.Sub(bi)
 
 			if z1 == 0 {
