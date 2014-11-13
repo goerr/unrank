@@ -28,7 +28,8 @@ type Set interface {
 
 // Unrank implements the combination unrank algorithm
 // The unrank treshold is provided as part of the Tresholder argument
-func Unrank(s Set, t Tresholder, z1 uint, z0 uint) error {
+// The result is stored to the Set argument
+func Unrank(s *Set, t Tresholder, z1 uint, z0 uint) error {
 	var n, bit, swap uint
 
 	for z0 + z1 > 0 {
